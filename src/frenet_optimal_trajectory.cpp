@@ -13,9 +13,11 @@ vector<FrenetPath> calc_frenet_paths(double c_speed, double c_d, double c_d_d, d
 		{
 			FrenetPath fp;
 
-			quintic lat_qp(c_d, c_d_d, c_d_dd, di, 0.0, 0.0, Ti);
-
+			quintic lat_qp(c_d, c_d_d, c_d_dd, di, 0.0, 0.0, Ti); // d, d_d not being sampled
+// =======================================================================================
+			// Upper bound should be Ti not Ti+ DT
 			for(double t = 0.0; t <= Ti + DT; t += DT)
+// =======================================================================================
 			{
 				fp.t.push_back(t);
 				fp.d.push_back(lat_qp.calc_point(t));
@@ -25,13 +27,17 @@ vector<FrenetPath> calc_frenet_paths(double c_speed, double c_d, double c_d_d, d
 			} 
 
 			double Jp = inner_product(fp.d_ddd.begin(), fp.d_ddd.end(), fp.d_ddd.begin(), 0);
+// ===============================================================================================
+			// Can be put outside to reduce computation
 			double minV = TARGET_SPEED - D_T_S*N_S_SAMPLE;
 			double maxV = TARGET_SPEED + D_T_S*N_S_SAMPLE;
-
+// ============================================================================================
+			//Again same problem as above.
 			for(double tv = minV; tv <= maxV + D_T_S; tv += D_T_S)
+// ============================================================================================
 			{
 				FrenetPath tfp = fp;
-				quartic lon_qp(s0, c_speed, 0.0, tv, 0.0, Ti);
+				quartic lon_qp(s0, c_speed, 0.0, tv, 0.0, Ti);	//s_dd is not being sampled
 
 				for(auto const& t : fp.t) 
 				{
@@ -40,9 +46,8 @@ vector<FrenetPath> calc_frenet_paths(double c_speed, double c_d, double c_d_d, d
 					tfp.s_dd.push_back(lon_qp.calc_second_derivative(t));
 					tfp.s_ddd.push_back(lon_qp.calc_third_derivative(t));
 				}
-
+				//https://www.geeksforgeeks.org/std-inner_product-in-cpp/
 				double Js = inner_product(tfp.s_ddd.begin(), tfp.s_ddd.end(), tfp.s_ddd.begin(), 0);
-
 				double ds = pow((TARGET_SPEED - tfp.s_d.back()), 2);
 
 				tfp.cd = KJ*Jp + KT*Ti + KD*tfp.d.back()*tfp.d.back();
@@ -63,7 +68,6 @@ vector<FrenetPath> calc_global_paths(vector<FrenetPath> fplist, Spline2D csp)
 {
 	for(auto& fp : fplist)
 	{
-
 		for(int i = 0; i < fp.s.size(); i++)
 		{
 			double ix, iy;
@@ -73,7 +77,6 @@ vector<FrenetPath> calc_global_paths(vector<FrenetPath> fplist, Spline2D csp)
 				break;
 			double iyaw = csp.calc_yaw(fp.s[i]);
 			double di = fp.d[i];
-
 			double fx = ix - di*sin(iyaw);
 			double fy = iy + di*cos(iyaw);
 

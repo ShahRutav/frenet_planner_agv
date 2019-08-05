@@ -162,11 +162,11 @@ void initial_conditions(Spline2D csp, vecD global_x, vecD global_y, vecD ryaw, d
 
 	double delta_theta = bot_yaw - g_path_yaw;
 
-	c_d_d = v*sin(delta_theta);
+	c_d_d = v*sin(delta_theta);//Equation 5
 
 	double k_r = csp.calc_curvature(s0);
 
-	c_speed = v*cos(delta_theta) / (1 - k_r*c_d);
+	c_speed = v*cos(delta_theta) / (1 - k_r*c_d); //s_dot (Equation 7)
 
 	c_d_dd = 0; // For the time being. Need to be updated
 }
@@ -294,5 +294,4 @@ int main(int argc, char **argv)
 		ros::spinOnce();
 		rate.sleep();
 	}
-		
 }

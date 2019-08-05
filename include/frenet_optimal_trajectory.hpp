@@ -40,21 +40,17 @@ geometry_msgs::PolygonStamped footprint;
 vector<double> ob_x;
 vector<double> ob_y;
 
-
-class FrenetPath{
+class FrenetPath
+{
 	public :
-
 		vecD t, d, d_d, d_dd, d_ddd, s, s_d, s_dd, s_ddd, x, y, yaw, ds, c;
 		double cd, cv, cf;
-
-
 };
 
 vector<FrenetPath> calc_frenet_paths(double, double, double, double, double);
 vector<FrenetPath> calc_global_paths(vector<FrenetPath> &, double);
-vector<FrenetPath> check_path(vector<FrenetPath>	);
+vector<FrenetPath> check_path(vector<FrenetPath>);
 FrenetPath frenet_optimal_planning(Spline2D, double, double, double, double, double);
-
 bool check_collision(FrenetPath);
 
 #endif

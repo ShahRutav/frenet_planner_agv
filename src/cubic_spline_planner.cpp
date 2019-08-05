@@ -192,7 +192,11 @@ double Spline2D::calc_curvature(double t)
 	double dy = sy.calcd(t);
 	double ddy = sy.calcdd(t);
 
+// DOUBT : denominator should have power of 3/2.
+	// https://www.math24.net/curvature-radius/
+// ==============================================================================
 	double k = (ddy*dx - ddx*dy) / (dx*dx  + dy *dy);
+// ==============================================================================
 
 	return k;
 }
