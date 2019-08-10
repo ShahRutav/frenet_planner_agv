@@ -7,9 +7,23 @@
 #include <utility>
 #include <ros/console.h>
 
+vecD FrenetPath::get_x()
+{
+	return x;
+}
+void FrenetPath::add_x(double element)
+{
+	x.push_back(element);
+}
 
-
-
+vecD FrenetPath::get_y()
+{
+	return y;
+}
+void FrenetPath::add_y(double element)
+{
+	y.push_back(element);
+}
 
 void costmap_callback(const nav_msgs::OccupancyGrid::ConstPtr& occupancy_grid)
 {
@@ -174,11 +188,13 @@ void initial_conditions(Spline2D csp, vecD global_x, vecD global_y, vecD ryaw, d
 
 void publishPath(nav_msgs::Path &path_msg, FrenetPath path, vecD rk, vecD ryaw, double &c_speed, double &c_d, double &c_d_d)
 {
-	for(int i = 0; i < path.x.size(); i++)
+	vecD x_vec = path.get_x();
+	vecD y_vec = path.get_y();
+	for(int i = 0; i < path.get_x().size(); i++)
 		{
 			geometry_msgs::PoseStamped loc;
-			loc.pose.position.x = path.x[i];
-			loc.pose.position.y = path.y[i];
+			loc.pose.position.x = x_vec[i];
+			loc.pose.position.y = y_vec[i];
 
 			double delta_theta = atan(c_d_d / ((1 - rk[i]*c_d)*c_speed));
 			double yaw = delta_theta + ryaw[i];
@@ -251,6 +267,7 @@ int main(int argc, char **argv)
 		// ROS_INFO("Initial conditions set");
 
 		//Getting the optimal frenet path
+		ROS_INFO("Before frenet path");
 		FrenetPath path = frenet_optimal_planning(csp, s0, c_speed, c_d, c_d_d, c_d_dd);
 		ROS_INFO("Frenet path created");
 

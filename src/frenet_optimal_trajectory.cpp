@@ -1,6 +1,197 @@
 #include "../include/frenet_optimal_trajectory.hpp"
 #include <ros/console.h>
+vecD FrenetPath::get_t()
+{
+	return t;
+}
+void FrenetPath::add_t(double element)
+{
+	t.push_back(element);
+}
 
+vecD FrenetPath::get_d()
+{
+	return d;
+}
+void FrenetPath::add_d(double element)
+{
+	d.push_back(element);
+}
+
+vecD FrenetPath::get_d_d()
+{
+	return d_d;
+}
+void FrenetPath::add_d_d(double element)
+{
+	d_d.push_back(element);
+}
+
+vecD FrenetPath::get_d_dd()
+{
+	return d_dd;
+}
+void FrenetPath::add_d_dd(double element)
+{
+	d_dd.push_back(element);
+}
+
+vecD FrenetPath::get_d_ddd()
+{
+	return d_ddd;
+}
+void FrenetPath::add_d_ddd(double element)
+{
+	d_ddd.push_back(element);
+}
+
+vecD FrenetPath::get_s()
+{
+	return s;
+}
+void FrenetPath::add_s(double element)
+{
+	s.push_back(element);
+}
+
+vecD FrenetPath::get_s_d()
+{
+	return s_d;
+}
+void FrenetPath::add_s_d(double element)
+{
+	s_d.push_back(element);
+}
+
+vecD FrenetPath::get_s_dd()
+{
+	return s_dd;
+}
+void FrenetPath::add_s_dd(double element)
+{
+	s_dd.push_back(element);
+}
+
+vecD FrenetPath::get_s_ddd()
+{
+	return s_ddd;
+}
+void FrenetPath::add_s_ddd(double element)
+{
+	s_ddd.push_back(element);
+}
+
+vecD FrenetPath::get_x()
+{
+	return x;
+}
+void FrenetPath::add_x(double element)
+{
+	x.push_back(element);
+}
+
+vecD FrenetPath::get_y()
+{
+	return y;
+}
+void FrenetPath::add_y(double element)
+{
+	y.push_back(element);
+}
+
+vecD FrenetPath::get_yaw()
+{
+	return yaw;
+}
+void FrenetPath::add_yaw(double element)
+{
+	yaw.push_back(element);
+}
+
+vecD FrenetPath::get_ds()
+{
+	return ds;
+}
+void FrenetPath::add_ds(double element)
+{
+	ds.push_back(element);
+}
+
+vecD FrenetPath::get_c()
+{
+	return c;
+}
+void FrenetPath::add_c(double element)
+{
+	c.push_back(element);
+}
+
+double FrenetPath::get_cd()
+{
+	return cd;
+}
+void FrenetPath::add_cd(double element)
+{
+	cd = element;
+}
+
+double FrenetPath::get_cv()
+{
+	return cv;
+}
+void FrenetPath::add_cv(double element)
+{
+	cv = element;
+}
+
+double FrenetPath::get_cf()
+{
+	return cf;
+}
+void FrenetPath::add_cf(double element)
+{
+	cf = element;
+}
+
+FrenetPath calc_lat_paths(double c_speed, double c_d, double c_d_d, double c_d_dd, double s0, double Ti, double di)
+{
+	FrenetPath fp;
+	quintic lat_qp(c_d, c_d_d, c_d_dd, di, 0.0, 0.0, Ti); // d, d_d not being sampled
+	for(double t = 0.0; t <= Ti + DT; t += DT)
+	{
+		fp.add_t(t);
+		fp.add_d(lat_qp.calc_point(t));
+		fp.add_d_d(lat_qp.calc_first_derivative(t));
+		fp.add_d_dd(lat_qp.calc_second_derivative(t));
+		fp.add_d_ddd(lat_qp.calc_third_derivative(t));
+	}
+	return fp;
+}
+
+FrenetPath calc_lon_paths(double c_speed, double c_d, double c_d_d, double c_d_dd, double s0, double Ti, double di, FrenetPath &fp, double tv, double Jp)
+{
+	FrenetPath tfp = fp;
+	quartic lon_qp(s0, c_speed, 0.0, tv, 0.0, Ti);	//s_dd is not being sampled
+
+	for(auto const& t : fp.get_t()) 
+	{
+		tfp.add_s(lon_qp.calc_point(t));
+		tfp.add_s_d(lon_qp.calc_first_derivative(t));
+		tfp.add_s_dd(lon_qp.calc_second_derivative(t));
+		tfp.add_s_ddd(lon_qp.calc_third_derivative(t));
+	}
+	vecD s_ddd_vec = fp.get_s_ddd();
+	//https://www.geeksforgeeks.org/std-inner_product-in-cpp/
+	double Js = inner_product(s_ddd_vec.begin(), s_ddd_vec.end(), s_ddd_vec.begin(), 0);
+	//cout<<"10"<<endl;
+	double ds = pow((TARGET_SPEED - tfp.get_s_d().back()), 2);
+
+	tfp.add_cd(KJ*Jp + KT*Ti + KD*tfp.get_d().back()*tfp.get_d().back());
+	tfp.add_cv(KJ*Js + KT*Ti + KD*ds);
+	tfp.add_cf(KLAT*tfp.get_cd() + KLON*tfp.get_cv());
+
+	return tfp;
+}
 
 // generates frenet path parameters including the cost
 vector<FrenetPath> calc_frenet_paths(double c_speed, double c_d, double c_d_d, double c_d_dd, double s0)
@@ -11,52 +202,21 @@ vector<FrenetPath> calc_frenet_paths(double c_speed, double c_d, double c_d_d, d
 	{
 		for(double Ti = MINT; Ti <= MAXT + DT; Ti += DT)
 		{
-			FrenetPath fp;
-
-			quintic lat_qp(c_d, c_d_d, c_d_dd, di, 0.0, 0.0, Ti); // d, d_d not being sampled
-// =======================================================================================
-			// Upper bound should be Ti not Ti+ DT
-			for(double t = 0.0; t <= Ti + DT; t += DT)
-// =======================================================================================
-			{
-				fp.t.push_back(t);
-				fp.d.push_back(lat_qp.calc_point(t));
-				fp.d_d.push_back(lat_qp.calc_first_derivative(t));
-				fp.d_dd.push_back(lat_qp.calc_second_derivative(t));
-				fp.d_ddd.push_back(lat_qp.calc_third_derivative(t));
-			} 
-
-			double Jp = inner_product(fp.d_ddd.begin(), fp.d_ddd.end(), fp.d_ddd.begin(), 0);
-// ===============================================================================================
-			// Can be put outside to reduce computation
+			//cout<<"5"<<endl;
+			FrenetPath fp = calc_lat_paths(c_speed, c_d, c_d_d, c_d_dd, s0, Ti, di);
+			//cout<<"6"<<endl;
+			vecD d_ddd_vec = fp.get_d_ddd();
+			double Jp = inner_product(d_ddd_vec.begin(), d_ddd_vec.end(), d_ddd_vec.begin(), 0);
+			//cout<<"7"<<endl;
 			double minV = TARGET_SPEED - D_T_S*N_S_SAMPLE;
 			double maxV = TARGET_SPEED + D_T_S*N_S_SAMPLE;
-// ============================================================================================
-			//Again same problem as above.
+
 			for(double tv = minV; tv <= maxV + D_T_S; tv += D_T_S)
-// ============================================================================================
 			{
-				FrenetPath tfp = fp;
-				quartic lon_qp(s0, c_speed, 0.0, tv, 0.0, Ti);	//s_dd is not being sampled
-
-				for(auto const& t : fp.t) 
-				{
-					tfp.s.push_back(lon_qp.calc_point(t));
-					tfp.s_d.push_back(lon_qp.calc_first_derivative(t));
-					tfp.s_dd.push_back(lon_qp.calc_second_derivative(t));
-					tfp.s_ddd.push_back(lon_qp.calc_third_derivative(t));
-				}
-				//https://www.geeksforgeeks.org/std-inner_product-in-cpp/
-				double Js = inner_product(tfp.s_ddd.begin(), tfp.s_ddd.end(), tfp.s_ddd.begin(), 0);
-				double ds = pow((TARGET_SPEED - tfp.s_d.back()), 2);
-
-				tfp.cd = KJ*Jp + KT*Ti + KD*tfp.d.back()*tfp.d.back();
-				tfp.cv = KJ*Js + KT*Ti + KD*ds;
-				tfp.cf = KLAT*tfp.cd + KLON*tfp.cv;
-
-				frenet_paths.push_back(tfp);
+				FrenetPath tfp = calc_lon_paths(c_speed, c_d, c_d_d, c_d_dd, s0, Ti, di, fp, tv, Jp);
+				frenet_paths.push_back(tfp);		
 			}
-
+			//cout<<"8"<<endl;
 		}
 	}
 
@@ -68,35 +228,39 @@ vector<FrenetPath> calc_global_paths(vector<FrenetPath> fplist, Spline2D csp)
 {
 	for(auto& fp : fplist)
 	{
-		for(int i = 0; i < fp.s.size(); i++)
+		for(int i = 0; i < fp.get_s().size(); i++)
 		{
 			double ix, iy;
-			csp.calc_position(&ix, &iy, fp.s[i]);
+			vecD s_vec = fp.get_s();
+			vecD d_vec = fp.get_d();
+			csp.calc_position(&ix, &iy, s_vec[i]);
 
 			if(ix == NONE)
 				break;
-			double iyaw = csp.calc_yaw(fp.s[i]);
-			double di = fp.d[i];
+			double iyaw = csp.calc_yaw(s_vec[i]);
+			double di = d_vec[i];
 			double fx = ix - di*sin(iyaw);
 			double fy = iy + di*cos(iyaw);
 
-			fp.x.push_back(fx);
-			fp.y.push_back(fy);
+			fp.add_x(fx);
+			fp.add_y(fy);
 		}
 
-
-		for(int i = 0; i < fp.x.size() - 1; i++)
+		vecD x_vec = fp.get_x();
+		vecD y_vec = fp.get_y();
+		for(int i = 0; i < fp.get_x().size() - 1; i++)
 		{
-			double dx = fp.x[i + 1] - fp.x[i];
-			double dy = fp.y[i + 1] - fp.y[i];
+			double dx = x_vec[i + 1] - x_vec[i];
+			double dy = y_vec[i + 1] - y_vec[i];
 
-			fp.yaw.push_back(atan2(dy, dx));
-			fp.ds.push_back(sqrt(dx*dx + dy*dy));
+			fp.add_yaw(atan2(dy, dx));
+			fp.add_ds(sqrt(dx*dx + dy*dy));
 		}
 
-
-		for(int i = 0; i < fp.yaw.size() - 1; i++)
-			fp.c.push_back((fp.yaw[i + 1] - fp.yaw[i]) / fp.ds[i]);
+		vecD yaw_vec = fp.get_yaw();
+		vecD ds_vec = fp.get_ds();
+		for(int i = 0; i < fp.get_yaw().size() - 1; i++)
+			fp.add_c((yaw_vec[i + 1] - yaw_vec[i]) / ds_vec[i]);
 		
 	}
 
@@ -308,9 +472,12 @@ bool point_obcheck(geometry_msgs::Point32 p)
 
 bool check_collision(FrenetPath fp)
 {
-	for(int i = 0; i < fp.x.size(); i++)
+	for(int i = 0; i < fp.get_x().size(); i++)
 	{
-		vector<geometry_msgs::Point32> trans_footprint = transformation(footprint.polygon.points, odom.pose.pose, fp.x[i], fp.y[i], fp.yaw[i]);
+		vecD x_vec = fp.get_x();
+		vecD y_vec = fp.get_y();
+		vecD yaw_vec = fp.get_yaw();
+		vector<geometry_msgs::Point32> trans_footprint = transformation(footprint.polygon.points, odom.pose.pose, x_vec[i], y_vec[i], yaw_vec[i]);
 		for(int j = 0; j < trans_footprint.size(); j++)
 		{
 			if(point_obcheck(trans_footprint[j])==1)
@@ -379,18 +546,23 @@ vector<FrenetPath> check_path(vector<FrenetPath> fplist)
 // generates the path and returns the bestpath
 FrenetPath frenet_optimal_planning(Spline2D csp, double s0, double c_speed, double c_d, double c_d_d, double c_d_dd)
 {
+	ROS_INFO("1");
 	vector<FrenetPath> fplist = calc_frenet_paths(c_speed, c_d, c_d_d, c_d_dd, s0);
-
+	ROS_INFO("2");
 	fplist = calc_global_paths(fplist, csp);
+	ROS_INFO("3");
 	fplist = check_path(fplist);
+	ROS_INFO("4");
 
 	double min_cost = FLT_MAX;
 	FrenetPath bestpath;
-	for(auto const& fp : fplist)
+	double cf;
+	for(auto & fp : fplist)
 	{
-		if(min_cost >= fp.cf)
+		cf = fp.get_cf();
+		if(min_cost >= cf)
 		{
-			min_cost = fp.cf;
+			min_cost = cf;
 			bestpath = fp;
 		}
 	}
