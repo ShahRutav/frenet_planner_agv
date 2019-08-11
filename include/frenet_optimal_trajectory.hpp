@@ -46,63 +46,66 @@ class FrenetPath
 		vecD t, d, d_d, d_dd, d_ddd, s, s_d, s_dd, s_ddd, x, y, yaw, ds, c;
 		double cd, cv, cf;
 	public :
-		vecD get_t();
-		void add_t(double );
+		// vecD get_t();
+		// void add_t(double );
 
-		vecD get_d();
-		void add_d(double );
+		// vecD get_d();
+		// void add_d(double );
 		
-		vecD get_d_d();
-		void add_d_d(double );
+		// vecD get_d_d();
+		// void add_d_d(double );
 		
-		vecD get_d_dd();
-		void add_d_dd(double );
+		// vecD get_d_dd();
+		// void add_d_dd(double );
 		
 		vecD get_d_ddd();
-		void add_d_ddd(double );
+		// void add_d_ddd(double );
 		
-		vecD get_s();
-		void add_s(double );
+		// vecD get_s();
+		// void add_s(double );
 		
-		vecD get_s_d();
-		void add_s_d(double );
+		// vecD get_s_d();
+		// void add_s_d(double );
 		
-		vecD get_s_dd();
-		void add_s_dd(double );
+		// vecD get_s_dd();
+		// void add_s_dd(double );
 		
-		vecD get_s_ddd();
-		void add_s_ddd(double );
+		// vecD get_s_ddd();
+		// void add_s_ddd(double );
 		
 		vecD get_x();
-		void add_x(double );
+		// void add_x(double );
 		
 		vecD get_y();
-		void add_y(double );
+		// void add_y(double );
 		
-		vecD get_yaw();
-		void add_yaw(double );
+		// vecD get_yaw();
+		// void add_yaw(double );
 		
-		vecD get_ds();
-		void add_ds(double );
+		// vecD get_ds();
+		// void add_ds(double );
 		
-		vecD get_c();
-		void add_c(double );
+		// vecD get_c();
+		// void add_c(double );
 
-		double get_cd();
-		void add_cd(double );
+		// double get_cd();
+		// void add_cd(double );
 
-		double get_cv();
-		void add_cv(double );
+		// double get_cv();
+		// void add_cv(double );
 
 		double get_cf();
-		void add_cf(double );
+		// void add_cf(double );
+
+		void calc_lat_paths(double , double , double , double , double , double , double );
+		void calc_lon_paths(double , double , double , double , double , double , double , FrenetPath &, double, double );
+		void adding_global_path(Spline2D );
+		bool check_collision();
+
 };
-FrenetPath calc_lat_paths(double , double , double , double , double , double , double );
-FrenetPath calc_lon_paths(double , double , double , double , double , double , double , FrenetPath &, double );
+vector<FrenetPath> check_path(vector<FrenetPath>);
 vector<FrenetPath> calc_frenet_paths(double, double, double, double, double);
 vector<FrenetPath> calc_global_paths(vector<FrenetPath> &, double);
-vector<FrenetPath> check_path(vector<FrenetPath>);
 FrenetPath frenet_optimal_planning(Spline2D, double, double, double, double, double);
-bool check_collision(FrenetPath);
 
 #endif

@@ -11,19 +11,12 @@ vecD FrenetPath::get_x()
 {
 	return x;
 }
-void FrenetPath::add_x(double element)
-{
-	x.push_back(element);
-}
 
 vecD FrenetPath::get_y()
 {
 	return y;
 }
-void FrenetPath::add_y(double element)
-{
-	y.push_back(element);
-}
+
 
 void costmap_callback(const nav_msgs::OccupancyGrid::ConstPtr& occupancy_grid)
 {
