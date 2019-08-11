@@ -9,10 +9,11 @@ void FrenetPath::add_t(double element)
 	t.push_back(element);
 }*/
 
-/*vecD FrenetPath::get_d()
-{
-	return d;
-}
+// vecD FrenetPath::get_d()
+// {
+// 	return d;
+// }
+/*
 void FrenetPath::add_d(double element)
 {
 	d.push_back(element);
@@ -45,10 +46,11 @@ vecD FrenetPath::get_d_ddd()
 	d_ddd.push_back(element);
 }*/
 
-/*vecD FrenetPath::get_s()
-{
-	return s;
-}
+// vecD FrenetPath::get_s()
+// {
+// 	return s;
+// }
+/*
 void FrenetPath::add_s(double element)
 {
 	s.push_back(element);
@@ -80,52 +82,50 @@ void FrenetPath::add_s_ddd(double element)
 {
 	s_ddd.push_back(element);
 }
+*/
+// vecD FrenetPath::get_x()
+// {
+// 	return x;
+// }
+// void FrenetPath::add_x(double element)
+// {
+// 	x.push_back(element);
+// }
 
-vecD FrenetPath::get_x()
-{
-	return x;
-}
-void FrenetPath::add_x(double element)
-{
-	x.push_back(element);
-}
-
-vecD FrenetPath::get_y()
-{
-	return y;
-}
-void FrenetPath::add_y(double element)
-{
-	y.push_back(element);
-}
-
-vecD FrenetPath::get_yaw()
-{
-	return yaw;
-}
-void FrenetPath::add_yaw(double element)
-{
-	yaw.push_back(element);
-}
-
-vecD FrenetPath::get_ds()
-{
-	return ds;
-}
-void FrenetPath::add_ds(double element)
-{
-	ds.push_back(element);
-}
-
-vecD FrenetPath::get_c()
-{
-	return c;
-}
-void FrenetPath::add_c(double element)
-{
-	c.push_back(element);
-}
-
+// vecD FrenetPath::get_y()
+// {
+// 	return y;
+// }
+// void FrenetPath::add_y(double element)
+// {
+// 	y.push_back(element);
+// }
+// vecD FrenetPath::get_yaw()
+// {
+// 	return yaw;
+// }
+// void FrenetPath::add_yaw(double element)
+// {
+// 	yaw.push_back(element);
+// }
+// vecD FrenetPath::get_ds()
+// {
+// 	return ds;
+// }
+// void FrenetPath::add_ds(double element)
+// {
+// 	ds.push_back(element);
+// }
+// /*
+// vecD FrenetPath::get_c()
+// {
+// 	return c;
+// }*/
+// void FrenetPath::add_c(double element)
+// {
+// 	c.push_back(element);
+// }
+/*
 double FrenetPath::get_cd()
 {
 	return cd;
@@ -189,31 +189,25 @@ void FrenetPath::calc_lon_paths(double c_speed, double c_d, double c_d_d, double
 vector<FrenetPath> calc_frenet_paths(double c_speed, double c_d, double c_d_d, double c_d_dd, double s0)
 {
 	vector<FrenetPath> frenet_paths;
-	FrenetPath fp;
-	FrenetPath tfp;
 	for(double di = -MAX_ROAD_WIDTH; di <= MAX_ROAD_WIDTH + D_ROAD_W; di += D_ROAD_W)
 	{
 		for(double Ti = MINT; Ti <= MAXT + DT; Ti += DT)
 		{
-			cout<<"5"<<endl;
+			FrenetPath fp;
+			FrenetPath tfp;
 			fp.calc_lat_paths(c_speed, c_d, c_d_d, c_d_dd, s0, Ti, di);
-			cout<<"6"<<endl;
 
 			vecD d_ddd_vec = fp.get_d_ddd();
-			cout<<"7"<<endl;
 			double Jp = inner_product(d_ddd_vec.begin(), d_ddd_vec.end(), d_ddd_vec.begin(), 0);
-			cout<<"8"<<endl;
 			double minV = TARGET_SPEED - D_T_S*N_S_SAMPLE;
 			double maxV = TARGET_SPEED + D_T_S*N_S_SAMPLE;
 
-			cout<<"9"<<endl;
 			for(double tv = minV; tv <= maxV + D_T_S; tv += D_T_S)
 			{
 				tfp = fp;
 				tfp.calc_lon_paths(c_speed, c_d, c_d_d, c_d_dd, s0, Ti, di, fp, tv, Jp);
 				frenet_paths.push_back(tfp);		
 			}
-			cout<<"10"<<endl;
 		}
 	}
 	return frenet_paths;
@@ -253,11 +247,9 @@ void FrenetPath::adding_global_path(Spline2D csp)
 // convert to global frame 
 vector<FrenetPath> calc_global_paths(vector<FrenetPath> fplist, Spline2D csp)
 {
-	cout<<"11"<<endl;
 	for(auto& fp : fplist)
 	{
 		fp.adding_global_path(csp);	
-		cout<<"12"<<endl;
 	}
 	return fplist;
 }	
@@ -539,13 +531,9 @@ vector<FrenetPath> check_path(vector<FrenetPath> fplist)
 // generates the path and returns the bestpath
 FrenetPath frenet_optimal_planning(Spline2D csp, double s0, double c_speed, double c_d, double c_d_d, double c_d_dd)
 {
-	cout<<"1"<<endl;
 	vector<FrenetPath> fplist = calc_frenet_paths(c_speed, c_d, c_d_d, c_d_dd, s0);
-	cout<<"2"<<endl;
 	fplist = calc_global_paths(fplist, csp);
-	cout<<"3"<<endl;
 	fplist = check_path(fplist);
-	cout<<"4"<<endl;
 
 	double min_cost = FLT_MAX;
 	double cf;

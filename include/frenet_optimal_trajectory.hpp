@@ -74,10 +74,10 @@ class FrenetPath
 		// void add_s_ddd(double );
 		
 		vecD get_x();
-		// void add_x(double );
+		void add_x(double );
 		
 		vecD get_y();
-		// void add_y(double );
+		void add_y(double );
 		
 		// vecD get_yaw();
 		// void add_yaw(double );
