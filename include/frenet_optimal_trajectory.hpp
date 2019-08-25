@@ -27,9 +27,10 @@ double TARGET_SPEED;  // target speed [m/s]
 double D_T_S;   // target speed sampling length [m/s]
 double N_S_SAMPLE;// sampling number of target speed
 double ROBOT_RADIUS;  // robot radius [m]
-double MIN_LAT_VEL;
-double MAX_LAT_VEL;
-double D_D_NS;
+double MIN_LAT_VEL; //minimum lateral speed. Sampling for d_dot
+double MAX_LAT_VEL; //maxmum lateral speed. Sampling for d_dot
+double D_D_NS; //Step size for sampling of d_dot
+double MAX_SHIFT_D; //Sampling width for sampling of d.
 
 // cost weights
 double KJ;
@@ -62,6 +63,9 @@ class FrenetPath
 		double get_cf();
 		// void add_cf(double );
 
+		vecD get_d();
+		//void add_d(double );
+
 		void calc_lat_paths(double , double , double , double , double , double , double, double );
 		void calc_lon_paths(double , double , double , double , double , double , double , FrenetPath &, double, double );
 		void adding_global_path(Spline2D );
@@ -69,9 +73,11 @@ class FrenetPath
 		void plot_path();
 
 };
+void get_limits_d(FrenetPath , double *, double *);
 vector<FrenetPath> check_path(vector<FrenetPath>);
-vector<FrenetPath> calc_frenet_paths(double, double, double, double, double);
+vector<FrenetPath> calc_frenet_paths(double, double, double, double, double, FrenetPath );
 vector<FrenetPath> calc_global_paths(vector<FrenetPath> &, double);
-FrenetPath frenet_optimal_planning(Spline2D, double, double, double, double, double);
+FrenetPath frenet_optimal_planning(Spline2D, double, double, double, double, double, FrenetPath );
+
 
 #endif

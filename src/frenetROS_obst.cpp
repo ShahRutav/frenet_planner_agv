@@ -235,6 +235,7 @@ int main(int argc, char **argv)
     n.getParam("/frenet_planner/path/max_lat_vel", MAX_LAT_VEL);
     n.getParam("/frenet_planner/path/min_lat_vel", MIN_LAT_VEL);
     n.getParam("/frenet_planner/path/d_d_ns", D_D_NS);
+    n.getParam("/frenet_planner/path/max_shift_d", MAX_SHIFT_D);
     n.getParam("/frenet_planner/cost/kj", KJ);
     n.getParam("/frenet_planner/cost/kt", KT);
     n.getParam("/frenet_planner/cost/kd", KD);
@@ -251,6 +252,7 @@ int main(int argc, char **argv)
 	
 	//Global path is made using the waypoints
 	Spline2D csp = calc_spline_course(wx, wy, rx, ry, ryaw, rk, ds);
+	FrenetPath lp;
 	ROS_INFO("Spline is made");
 	
 	double s0, c_d, c_d_d, c_d_dd, c_speed ;
@@ -264,7 +266,8 @@ int main(int argc, char **argv)
 
 		//Getting the optimal frenet path
 		ROS_INFO("Before frenet path");
-		FrenetPath path = frenet_optimal_planning(csp, s0, c_speed, c_d, c_d_d, c_d_dd);
+		FrenetPath path = frenet_optimal_planning(csp, s0, c_speed, c_d, c_d_d, c_d_dd, lp);
+		lp = path;
 		ROS_INFO("Frenet path created");
 
 		nav_msgs::Path path_msg;

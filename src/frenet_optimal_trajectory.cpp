@@ -11,6 +11,10 @@ double FrenetPath::get_cf()
 {
 	return cf;
 }
+vecD FrenetPath::get_d()
+{
+	return d;
+}
 
 void FrenetPath::calc_lat_paths(double c_speed, double c_d, double c_d_d, double c_d_dd, double s0, double Ti, double di, double di_d)
 {
@@ -44,11 +48,31 @@ void FrenetPath::calc_lon_paths(double c_speed, double c_d, double c_d_d, double
 	cf = (KLAT*cd + KLON*cv);
 }
 
+void get_limits_d(FrenetPath lp, double *lower_limit_d, double *upper_limit_d)
+{
+	vecD d_sampling = lp.get_d();
+	if(d_sampling.size() == 0)
+	{
+		*lower_limit_d = -MAX_ROAD_WIDTH;
+		*upper_limit_d = MAX_ROAD_WIDTH + D_ROAD_W;
+	}
+	else
+	{
+		*lower_limit_d = d_sampling.back() - MAX_SHIFT_D;
+		*upper_limit_d = d_sampling.back() + MAX_SHIFT_D + D_ROAD_W;
+	}
+}
+
 // generates frenet path parameters including the cost
-vector<FrenetPath> calc_frenet_paths(double c_speed, double c_d, double c_d_d, double c_d_dd, double s0)
+vector<FrenetPath> calc_frenet_paths(double c_speed, double c_d, double c_d_d, double c_d_dd, double s0, FrenetPath lp)
 {
 	vector<FrenetPath> frenet_paths;
-	for(double di = -MAX_ROAD_WIDTH; di <= MAX_ROAD_WIDTH + D_ROAD_W; di += D_ROAD_W)
+	double lower_limit_d, upper_limit_d;
+	lower_limit_d = -MAX_ROAD_WIDTH;
+	upper_limit_d = MAX_ROAD_WIDTH + D_ROAD_W;
+	get_limits_d(lp, &lower_limit_d, &upper_limit_d);//IF not required to sample around previous sampled d then comment this line.
+	// cout<<"upper_limit_d : "<<upper_limit_d<<" ; lower_limit_d  : "<<lower_limit_d<<endl;
+	for(double di = lower_limit_d; di <= upper_limit_d; di += D_ROAD_W)
 	{
 		for(double Ti = MINT; Ti <= MAXT + DT; Ti += DT)
 		{
@@ -412,9 +436,9 @@ void display_paths(vector<FrenetPath> fplist)
 }
 
 // generates the path and returns the bestpath
-FrenetPath frenet_optimal_planning(Spline2D csp, double s0, double c_speed, double c_d, double c_d_d, double c_d_dd)
+FrenetPath frenet_optimal_planning(Spline2D csp, double s0, double c_speed, double c_d, double c_d_d, double c_d_dd, FrenetPath lp)
 {
-	vector<FrenetPath> fplist = calc_frenet_paths(c_speed, c_d, c_d_d, c_d_dd, s0);
+	vector<FrenetPath> fplist = calc_frenet_paths(c_speed, c_d, c_d_d, c_d_dd, s0, lp);
 	fplist = calc_global_paths(fplist, csp);
 	fplist = check_path(fplist);
 	if(false)

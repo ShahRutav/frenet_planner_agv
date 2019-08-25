@@ -21,3 +21,4 @@ path:
   min_lat_vel: -1.0 
   max_lat_vel: 1.0
   d_d_ns: 1.0
+  max_shift_d: 5
