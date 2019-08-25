@@ -232,6 +232,9 @@ int main(int argc, char **argv)
     n.getParam("/frenet_planner/path/d_t_s", D_T_S);
     n.getParam("/frenet_planner/path/n_s_sample", N_S_SAMPLE);
     n.getParam("/frenet_planner/path/robot_radius", ROBOT_RADIUS);
+    n.getParam("/frenet_planner/path/max_lat_vel", MAX_LAT_VEL);
+    n.getParam("/frenet_planner/path/min_lat_vel", MIN_LAT_VEL);
+    n.getParam("/frenet_planner/path/d_d_ns", D_D_NS);
     n.getParam("/frenet_planner/cost/kj", KJ);
     n.getParam("/frenet_planner/cost/kt", KT);
     n.getParam("/frenet_planner/cost/kd", KD);
