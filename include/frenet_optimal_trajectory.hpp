@@ -71,6 +71,7 @@ class FrenetPath
 		void adding_global_path(Spline2D );
 		bool check_collision();
 		void plot_path();
+		void plot_velocity_profile();
 
 };
 void get_limits_d(FrenetPath , double *, double *);

@@ -419,6 +419,12 @@ void FrenetPath::plot_path()
 	plt::plot(x,y);
 	plt::pause(0.001);
 }
+void FrenetPath::plot_velocity_profile()
+{
+	cout<<"YYYYYYYYY\n";
+	plt::plot(t, s_d);
+	plt::pause(0.001);
+}
 
 void display_paths(vector<FrenetPath> fplist)
 {
@@ -441,7 +447,7 @@ FrenetPath frenet_optimal_planning(Spline2D csp, double s0, double c_speed, doub
 	vector<FrenetPath> fplist = calc_frenet_paths(c_speed, c_d, c_d_d, c_d_dd, s0, lp);
 	fplist = calc_global_paths(fplist, csp);
 	fplist = check_path(fplist);
-	if(false)
+	if(true)
 	{
 		display_paths(fplist);
 	}
@@ -463,6 +469,13 @@ FrenetPath frenet_optimal_planning(Spline2D csp, double s0, double c_speed, doub
 		plt::ion();
 		plt::show();
 		bestpath.plot_path();
+	}
+	if(false)
+	{
+		cout<<"XXXXXXXXXXXX"<<endl;
+		plt::ion();
+		plt::show();
+		bestpath.plot_velocity_profile();
 	}
 	return bestpath;
 }
