@@ -2,6 +2,7 @@ cost:
   kj: 1.0
   kt: 1.0
   kd: 0.5
+  kd_v: 0.5
   klat: 1.0
   klon: 2.0
 
@@ -21,4 +22,4 @@ path:
   min_lat_vel: -1.0 
   max_lat_vel: 1.0
   d_d_ns: 1.0
-  max_shift_d: 5
+  max_shift_d: 3

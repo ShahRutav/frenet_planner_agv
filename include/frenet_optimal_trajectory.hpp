@@ -36,6 +36,7 @@ double MAX_SHIFT_D; //Sampling width for sampling of d.
 double KJ;
 double KT;
 double KD;
+double KD_V;
 double KLAT;
 double KLON;
 
@@ -67,7 +68,8 @@ class FrenetPath
 		//void add_d(double );
 
 		void calc_lat_paths(double , double , double , double , double , double , double, double );
-		void calc_lon_paths(double , double , double , double , double , double , double , FrenetPath &, double, double );
+		void calc_lon_paths(double , double , double , FrenetPath &, double, double );
+		void calc_lon_paths_quintic_poly(double , double , double , FrenetPath &, double , double , double );
 		void adding_global_path(Spline2D );
 		bool check_collision();
 		void plot_path();

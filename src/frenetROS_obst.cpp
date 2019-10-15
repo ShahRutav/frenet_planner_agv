@@ -239,6 +239,7 @@ int main(int argc, char **argv)
     n.getParam("/frenet_planner/cost/kj", KJ);
     n.getParam("/frenet_planner/cost/kt", KT);
     n.getParam("/frenet_planner/cost/kd", KD);
+    n.getParam("/frenet_planner/cost/kd_v", KD_V);
     n.getParam("/frenet_planner/cost/klon", KLON);
     n.getParam("/frenet_planner/cost/klat", KLAT);
     // cout << "param " << MAX_SPEED << endl;	

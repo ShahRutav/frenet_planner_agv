@@ -93,9 +93,13 @@ void Spline::init(vecD x_in, vecD y_in) // calculates the coeffs for splines
 double Spline::calc(double t) // find y at given x
 {
 	if(t < x[0])
+	{
 		return NONE;
+	}
 	else if(t > x[nx - 1])
+	{
 		return NONE;
+	}
 	int i = search_index(t);
 
 	double dx = t - x[i]; 
