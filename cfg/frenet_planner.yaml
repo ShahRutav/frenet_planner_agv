@@ -1,5 +1,5 @@
 cost:
-  kj: 1.0
+  kj: 0.01
   kt: 1.0
   kd: 0.5
   kd_v: 0.5
@@ -21,5 +21,5 @@ path:
   robot_radius: 2.0
   min_lat_vel: -1.0 
   max_lat_vel: 1.0
-  d_d_ns: 1.0
+  d_d_ns: 0.5
   max_shift_d: 3

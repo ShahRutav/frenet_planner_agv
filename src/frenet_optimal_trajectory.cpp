@@ -46,13 +46,15 @@ void FrenetPath::calc_lon_paths(double c_speed, double s0, double Ti, FrenetPath
 	double ds = pow((TARGET_SPEED - s_d.back()), 2);
 
 	cd = (KJ*Jp + KT*Ti + KD*d.back()*d.back());
+	// cout<<"Jp : "<<Jp<<" Ti : "<<Ti<<" d^2 : "<<d.back()*d.back()<<endl;
+	// cout<<"Js : "<<Js<<" Ti : "<<Ti<<" Speed around target speed : "<<ds<<endl;
 	cv = (KJ*Js + KT*Ti + KD_V*ds);
 	cf = (KLAT*cd + KLON*cv);
 }
 
 void FrenetPath::calc_lon_paths_quintic_poly(double c_speed, double s0, double Ti, FrenetPath &fp, double ts, double tv, double Jp)
 {
-	quintic lon_qp(s0, c_speed, 0.0, ts, tv, 0.0, Ti);	// s_dd is not being sampled
+	quintic lon_qp(s0, c_speed, 0.0, s0 + ts, tv, 0.0, Ti);	// s_dd is not being sampled
 	for(auto const& te : t) 
 	{
 		s.push_back(lon_qp.calc_point(te));
@@ -66,8 +68,11 @@ void FrenetPath::calc_lon_paths_quintic_poly(double c_speed, double s0, double T
 	double ds = pow((TARGET_SPEED - s_d.back()), 2);
 
 	cd = (KJ*Jp + KT*Ti + KD*d.back()*d.back());
+	cout<<"Jp : "<<Jp<<" Ti : "<<Ti<<" d^2 : "<<d.back()*d.back()<<endl;
+	cout<<"Js : "<<Js<<" Ti : "<<Ti<<" Speed around target speed : "<<ds<<endl;
 	cv = (KJ*Js + KT*Ti + KD_V*ds);
 	cf = (KLAT*cd + KLON*cv);
+	cout<<"CF : "<<cf<<endl;
 }
 
 void get_limits_d(FrenetPath lp, double *lower_limit_d, double *upper_limit_d)
@@ -453,7 +458,7 @@ void FrenetPath::plot_velocity_profile()
 	plt::plot(t, s_d);
 	plt::pause(0.001);
 }
-
+static int flag_for_display_paths = 0;
 void display_paths(vector<FrenetPath> fplist)
 {
 	plt::ion();
@@ -461,12 +466,13 @@ void display_paths(vector<FrenetPath> fplist)
 	int count=0;
 	for(auto &fp : fplist)
 	{
-		if(count%100 == 0){
+		if(count%50 == 0 && flag_for_display_paths){
 			cout<<"!!"<<endl;
 			fp.plot_path();
 		}	
 		count++;
 	}
+	flag_for_display_paths = 1;
 }
 
 // generates the path and returns the bestpath
@@ -496,7 +502,7 @@ FrenetPath frenet_optimal_planning(Spline2D csp, double s0, double c_speed, doub
 			bestpath = fp;
 		}
 	}
-	if(true)
+	if(false)
 	{
 		plt::ion();
 		plt::show();
@@ -509,5 +515,7 @@ FrenetPath frenet_optimal_planning(Spline2D csp, double s0, double c_speed, doub
 		plt::show();
 		bestpath.plot_velocity_profile();
 	}
+	cf = bestpath.get_cf();
+	cout<<"CF OF BEST PATH : "<<cf<<endl;
 	return bestpath;
 }

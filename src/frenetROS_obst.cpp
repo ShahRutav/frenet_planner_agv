@@ -7,6 +7,8 @@
 #include <utility>
 #include <ros/console.h>
 
+namespace plt = matplotlibcpp;
+
 vecD FrenetPath::get_x()
 {
 	return x;
@@ -291,6 +293,16 @@ int main(int argc, char **argv)
 			loc.pose.position.x = rx[i];
 			loc.pose.position.y = ry[i];
 			global_path_msg.poses.push_back(loc);
+		}
+
+		if(true)
+		{
+			plt::ion();
+			plt::show();
+			plt::plot(lp.get_x(), lp.get_y());
+			plt::pause(0.001);
+			plt::plot(rx,ry);
+			plt::pause(0.001);
 		}
 
 		//Required tranformations on the Frenet path are made and pushed into message
